@@ -1,14 +1,12 @@
-const plugin = require("tailwindcss/plugin");
+// Ensure we’re resolving tailwindcss/plugin from the consumer’s project
+const plugin = require(require.resolve("tailwindcss/plugin", {
+	paths: [process.cwd()],
+}));
 
 module.exports = plugin(function ({ addBase }) {
-	// This registers any class starting with "eh-"
-	// as a base style. It doesn’t output any actual CSS,
-	// but it prevents these classes from being purged.
 	addBase({
 		'[class^="eh-"]': {
-			/* Optionally, you can add custom properties here
-         that your runtime JS might use, but for now
-         this acts as a marker class. */
+			// Marker style: no CSS needed
 		},
 	});
 });

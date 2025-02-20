@@ -1,12 +1,42 @@
 {
-  "name": "equalize-heights",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+	"name": "equalize-heights",
+	"version": "1.0.0",
+	"description": "A Tailwind CSS plugin to equalize element heights using the eh-* class prefix.",
+	"main": "index.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/amarasa/equalize-heights.git"
+	},
+	"keywords": [
+		"tailwindcss",
+		"plugin",
+		"equalize-heights",
+		"eh-",
+		"utilities"
+	],
+	"peerDependencies": {
+		"tailwindcss": ">=3.0.0"
+	},
+	"author": "Angelo Marasa",
+	"license": "MIT",
+	"exports": {
+		".": "./index.js",
+		"./runtime": "./dist/equalizeHeights.js"
+	},
+	"bugs": {
+		"url": "https://github.com/amarasa/equalize-heights/issues"
+	},
+	"homepage": "https://github.com/amarasa/equalize-heights#readme",
+	"scripts": {
+		"build:runtime": "rollup -c"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.26.9",
+		"@babel/preset-env": "^7.26.9",
+		"@rollup/plugin-babel": "^6.0.4",
+		"@rollup/plugin-commonjs": "^28.0.2",
+		"@rollup/plugin-node-resolve": "^16.0.0",
+		"core-js": "^3.40.0",
+		"rollup": "^4.34.8"
+	}
 }
