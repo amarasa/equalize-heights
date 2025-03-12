@@ -5,6 +5,15 @@
 // but it signals Babel to include the polyfill code.
 import "core-js";
 
+// Debounce helper function
+function debounce(func, wait = 150) {
+	let timeout;
+	return function (...args) {
+		clearTimeout(timeout);
+		timeout = setTimeout(() => func.apply(this, args), wait);
+	};
+}
+
 // Your equalization function:
 function equalizeHeights() {
 	const elements = document.querySelectorAll('[class*="eh-"]');
@@ -35,7 +44,10 @@ function equalizeHeights() {
 	});
 }
 
-// Run when DOM is ready
+// Create a debounced version for the resize event
+const debouncedEqualizeHeights = debounce(equalizeHeights, 150);
+
+// Run equalizeHeights immediately when the DOM is ready
 if (
 	document.readyState === "complete" ||
 	document.readyState === "interactive"
@@ -44,6 +56,8 @@ if (
 } else {
 	document.addEventListener("DOMContentLoaded", equalizeHeights);
 }
-window.addEventListener("resize", equalizeHeights);
+
+// Use the debounced function on window resize
+window.addEventListener("resize", debouncedEqualizeHeights);
 
 export default equalizeHeights;
