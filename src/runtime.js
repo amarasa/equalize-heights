@@ -1,8 +1,6 @@
 // src/runtime.js
 
 // (Optional) Import polyfills so that Babel will include them in the bundle.
-// This import will be removed from the final output if it isn’t needed,
-// but it signals Babel to include the polyfill code.
 import "core-js";
 
 // Debounce helper function
@@ -14,8 +12,21 @@ function debounce(func, wait = 150) {
 	};
 }
 
+// Retrieve user options, defaulting to no minimum width if not provided
+const options = window.equalizeHeightsOptions || {};
+const minWidthBreakpoint = options.minWidth || 0;
+
 // Your equalization function:
 function equalizeHeights() {
+	// If the window is below the specified breakpoint, reset heights and exit.
+	if (window.innerWidth < minWidthBreakpoint) {
+		const allElements = document.querySelectorAll('[class*="eh-"]');
+		allElements.forEach((el) => {
+			el.style.height = "auto";
+		});
+		return;
+	}
+
 	const elements = document.querySelectorAll('[class*="eh-"]');
 	const groups = {};
 

@@ -30,7 +30,17 @@
 
 3. **Include the Runtime Module**
 
-    In your main JavaScript entry file (for example, `src/index.js` or `core.js`), add the following import at the very top:
+    To enable the automatic equalization, you must import the runtime module in your main JavaScript entry file. **If you want to apply equalization only at specific breakpoints**, you can set options on the `window` object **before** importing the runtime. For example:
+
+    ```js
+    // Set the options first – in this example, equalization is applied only for viewports 768px and wider.
+    window.equalizeHeightsOptions = { minWidth: 768 };
+
+    // Then import the runtime module
+    import "equalize-heights/runtime";
+    ```
+
+    If you do not need a breakpoint, simply import the runtime:
 
     ```js
     import "equalize-heights/runtime";
@@ -73,7 +83,7 @@ Once installed and configured, simply mark your HTML elements with a class start
 </div>
 ```
 
-All elements sharing the same marker (e.g., `eh-members`) will have their heights equalized automatically.
+All elements sharing the same marker (e.g., `eh-members`) will have their heights equalized automatically when the viewport meets your specified breakpoint (if any) or unconditionally if no breakpoint is set.
 
 ---
 
@@ -90,14 +100,19 @@ A:
     ```js
     plugins: [require("equalize-heights")];
     ```
-3. Import the runtime module in your main JS file:
+3. **Optionally, set a breakpoint:**  
+   In your main JS file, before importing the runtime, add:
+    ```js
+    window.equalizeHeightsOptions = { minWidth: 768 };
+    ```
+4. Import the runtime module in your main JS file:
     ```js
     import "equalize-heights/runtime";
     ```
-4. Add marker classes (e.g., `eh-members`) to your HTML elements.
+5. Add marker classes (e.g., `eh-members`) to your HTML elements.
 
 **Q: How does Equalize Heights work?**  
-A: The runtime module automatically adjusts the heights of all elements with the same marker class by matching them to the tallest element in the group. It runs on DOM load and window resize.
+A: The runtime module automatically adjusts the heights of all elements with the same marker class by matching them to the tallest element in the group. It runs on DOM load and on window resize (with debouncing to improve performance).
 
 **Q: Can I manually trigger the height equalization?**  
 A: Yes! The runtime module exports the equalization function. If you need to trigger it manually, you can do so like this:
@@ -115,6 +130,7 @@ A:
 
 -   Ensure your HTML elements include the correct marker classes (e.g., `eh-members`).
 -   Verify that the runtime module is imported early in your JS entry file.
+-   If using a breakpoint, confirm that `window.equalizeHeightsOptions` is set **before** the runtime is imported.
 -   Check the browser console for any JavaScript errors that might be interfering with execution.
 
 ---
@@ -125,12 +141,16 @@ Using **Equalize Heights** is as simple as:
 
 1. **Add the plugin** to your Tailwind configuration.
 2. **Install the package** with npm.
-3. **Import the runtime** module in your main JavaScript file:
+3. **Optionally, set breakpoint options:**
+    ```js
+    window.equalizeHeightsOptions = { minWidth: 768 };
+    ```
+4. **Import the runtime** module in your main JavaScript file:
     ```js
     import "equalize-heights/runtime";
     ```
-4. **Mark your HTML elements** with classes like `eh-members`.
+5. **Mark your HTML elements** with classes like `eh-members`.
 
-That’s it—your elements will automatically be equalized in height!
+That’s it—your elements will automatically be equalized in height when the viewport meets your specified breakpoint (or unconditionally if no breakpoint is set)!
 
 Enjoy a consistent, professional layout with Equalize Heights!
