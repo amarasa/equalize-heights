@@ -7534,10 +7534,39 @@ function requireWeb_immediate () {
 requireWeb_immediate();
 
 // (Optional) Import polyfills so that Babel will include them in the bundle.
-// This import will be removed from the final output if it isn’t needed,
-// but it signals Babel to include the polyfill code.
+// Debounce helper function
+function debounce(func) {
+  let wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 150;
+  let timeout;
+  return function () {
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
 // Your equalization function:
 function equalizeHeights() {
+  // Re-read the options every time the function runs
+  const options = window.equalizeHeightsOptions || {};
+  const minWidthBreakpoint = options.minWidth || 0;
+
+  // Debug logging for options and current window width
+  console.log("equalizeHeightsOptions:", options);
+  console.log("Current window width:", window.innerWidth, "Min width required:", minWidthBreakpoint);
+
+  // If the window is below the specified breakpoint, reset heights and exit.
+  if (window.innerWidth < minWidthBreakpoint) {
+    console.log("Window width below breakpoint. Resetting heights to auto and skipping equalization.");
+    const allElements = document.querySelectorAll('[class*="eh-"]');
+    allElements.forEach(el => {
+      el.style.height = "auto";
+    });
+    return;
+  }
+  console.log("Window width meets breakpoint. Running equalization.");
   const elements = document.querySelectorAll('[class*="eh-"]');
   const groups = {};
   elements.forEach(el => {
@@ -7561,15 +7590,21 @@ function equalizeHeights() {
     groups[groupClass].forEach(el => {
       el.style.height = `${maxHeight}px`;
     });
+    console.log(`Equalized group ${groupClass} to height ${maxHeight}px`);
   });
 }
 
-// Run when DOM is ready
+// Create a debounced version for the resize event
+const debouncedEqualizeHeights = debounce(equalizeHeights, 150);
+
+// Run equalizeHeights immediately when the DOM is ready
 if (document.readyState === "complete" || document.readyState === "interactive") {
   equalizeHeights();
 } else {
   document.addEventListener("DOMContentLoaded", equalizeHeights);
 }
-window.addEventListener("resize", equalizeHeights);
+
+// Use the debounced function on window resize
+window.addEventListener("resize", debouncedEqualizeHeights);
 
 export { equalizeHeights as default };
