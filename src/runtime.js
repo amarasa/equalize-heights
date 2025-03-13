@@ -18,8 +18,20 @@ function equalizeHeights() {
 	const options = window.equalizeHeightsOptions || {};
 	const minWidthBreakpoint = options.minWidth || 0;
 
+	// Debug logging for options and current window width
+	console.log("equalizeHeightsOptions:", options);
+	console.log(
+		"Current window width:",
+		window.innerWidth,
+		"Min width required:",
+		minWidthBreakpoint
+	);
+
 	// If the window is below the specified breakpoint, reset heights and exit.
 	if (window.innerWidth < minWidthBreakpoint) {
+		console.log(
+			"Window width below breakpoint. Resetting heights to auto and skipping equalization."
+		);
 		const allElements = document.querySelectorAll('[class*="eh-"]');
 		allElements.forEach((el) => {
 			el.style.height = "auto";
@@ -27,6 +39,7 @@ function equalizeHeights() {
 		return;
 	}
 
+	console.log("Window width meets breakpoint. Running equalization.");
 	const elements = document.querySelectorAll('[class*="eh-"]');
 	const groups = {};
 
@@ -52,6 +65,7 @@ function equalizeHeights() {
 		groups[groupClass].forEach((el) => {
 			el.style.height = `${maxHeight}px`;
 		});
+		console.log(`Equalized group ${groupClass} to height ${maxHeight}px`);
 	});
 }
 
