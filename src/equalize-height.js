@@ -6,7 +6,7 @@ const plugin = require(require.resolve("tailwindcss/plugin", {
 module.exports = plugin(function ({ addBase }) {
 	addBase({
 		'[class^="eh-"]': {
-			// Marker style: no CSS needed
+			transition: 'height 0.2s ease-out',
 		},
 	});
 });
