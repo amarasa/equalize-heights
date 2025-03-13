@@ -39,7 +39,7 @@ With advanced breakpoint control and a custom callback hook, you can define mult
     // In this example:
     // - For viewports between 0 and 767px, reset heights (no equalization).
     // - For viewports 768px and wider, equalize heights.
-    // Additionally, a callback logs the groups that were equalized.
+    // Additionally, the callback will run after equalization.
     window.equalizeHeightsOptions = {
     	breakpoints: [
     		{ min: 0, max: 767, action: "reset" },
@@ -47,17 +47,85 @@ With advanced breakpoint control and a custom callback hook, you can define mult
     	],
     	callback: function (groups) {
     		console.log("Equalization complete. Group data:", groups);
-    		// You can add additional actions here, such as triggering animations.
     	},
     };
 
-    // Then import the runtime module.
+    // Then import the runtime module
     import "equalize-heights/runtime";
     ```
 
-    If you do not need advanced breakpoints or a callback, simply import the runtime:
+    ### Additional Examples of Callback Usage
+
+    You can also use the callback feature to perform other actions once equalization is complete. Here are a few examples:
+
+    **Example 1: Triggering Animations**
+
+    Suppose you want to trigger a fade-in animation on elements with the class `.additional-animation` after equalization. You can modify the callback like this:
 
     ```js
+    window.equalizeHeightsOptions = {
+    	breakpoints: [
+    		{ min: 0, max: 767, action: "reset" },
+    		{ min: 768, action: "equalize" },
+    	],
+    	callback: function (groups) {
+    		// Trigger a fade-in animation on elements with the .additional-animation class
+    		document.querySelectorAll(".additional-animation").forEach((el) => {
+    			el.classList.add("fade-in");
+    		});
+    		console.log("Animations triggered. Group data:", groups);
+    	},
+    };
+
+    import "equalize-heights/runtime";
+    ```
+
+    **Example 2: Making an API (AJAX) Request**
+
+    You might want to fetch some data from an API after the equalization is done. For example, using `fetch`:
+
+    ```js
+    window.equalizeHeightsOptions = {
+    	breakpoints: [
+    		{ min: 0, max: 767, action: "reset" },
+    		{ min: 768, action: "equalize" },
+    	],
+    	callback: function (groups) {
+    		// Make an API request after equalization
+    		fetch("https://api.example.com/data")
+    			.then((response) => response.json())
+    			.then((data) => {
+    				console.log("API data fetched:", data);
+    			})
+    			.catch((err) => console.error("API error:", err));
+    		console.log("API request triggered. Group data:", groups);
+    	},
+    };
+
+    import "equalize-heights/runtime";
+    ```
+
+    **Example 3: Updating a UI Element**
+
+    If you want to update a UI element (like showing a message or updating a counter) after equalization, you can do so in the callback:
+
+    ```js
+    window.equalizeHeightsOptions = {
+    	breakpoints: [
+    		{ min: 0, max: 767, action: "reset" },
+    		{ min: 768, action: "equalize" },
+    	],
+    	callback: function (groups) {
+    		// Update a UI element with the number of groups equalized
+    		const groupCount = Object.keys(groups).length;
+    		const statusEl = document.getElementById("equalize-status");
+    		if (statusEl) {
+    			statusEl.textContent = `Equalized ${groupCount} groups.`;
+    		}
+    		console.log("UI updated. Group data:", groups);
+    	},
+    };
+
     import "equalize-heights/runtime";
     ```
 
