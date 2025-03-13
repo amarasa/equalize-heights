@@ -12,12 +12,12 @@ function debounce(func, wait = 150) {
 	};
 }
 
-// Retrieve user options, defaulting to no minimum width if not provided
-const options = window.equalizeHeightsOptions || {};
-const minWidthBreakpoint = options.minWidth || 0;
-
 // Your equalization function:
 function equalizeHeights() {
+	// Re-read the options every time the function runs
+	const options = window.equalizeHeightsOptions || {};
+	const minWidthBreakpoint = options.minWidth || 0;
+
 	// If the window is below the specified breakpoint, reset heights and exit.
 	if (window.innerWidth < minWidthBreakpoint) {
 		const allElements = document.querySelectorAll('[class*="eh-"]');
