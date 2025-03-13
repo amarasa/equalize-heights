@@ -12,13 +12,12 @@ function debounce(func, wait = 150) {
 	};
 }
 
-// Your equalization function:
+// Equalization function that supports data attributes for grouping
 function equalizeHeights() {
-	// Re-read the options every time the function runs
+	// Re-read user options on every run
 	const options = window.equalizeHeightsOptions || {};
 	const minWidthBreakpoint = options.minWidth || 0;
 
-	// Debug logging for options and current window width
 	console.log("equalizeHeightsOptions:", options);
 	console.log(
 		"Current window width:",
@@ -27,52 +26,62 @@ function equalizeHeights() {
 		minWidthBreakpoint
 	);
 
-	// If the window is below the specified breakpoint, reset heights and exit.
+	// If the window width is below the breakpoint, reset heights and exit.
 	if (window.innerWidth < minWidthBreakpoint) {
 		console.log(
-			"Window width below breakpoint. Resetting heights to auto and skipping equalization."
+			"Window width below breakpoint. Resetting heights to auto."
 		);
-		const allElements = document.querySelectorAll('[class*="eh-"]');
+		const allElements = document.querySelectorAll(
+			'[class*="eh-"], [data-equalize]'
+		);
 		allElements.forEach((el) => {
 			el.style.height = "auto";
 		});
 		return;
 	}
 
-	console.log("Window width meets breakpoint. Running equalization.");
-	const elements = document.querySelectorAll('[class*="eh-"]');
+	// Select elements by data attribute or class
+	const elements = document.querySelectorAll(
+		'[data-equalize], [class*="eh-"]'
+	);
 	const groups = {};
 
 	elements.forEach((el) => {
-		el.classList.forEach((cls) => {
-			if (cls.startsWith("eh-")) {
-				if (!groups[cls]) {
-					groups[cls] = [];
-				}
-				groups[cls].push(el);
+		// Use the data attribute if present; otherwise, find the first matching class
+		let groupKey = el.getAttribute("data-equalize");
+		if (!groupKey) {
+			groupKey = Array.from(el.classList).find((cls) =>
+				cls.startsWith("eh-")
+			);
+		}
+		if (groupKey) {
+			if (!groups[groupKey]) {
+				groups[groupKey] = [];
 			}
-		});
+			groups[groupKey].push(el);
+		}
 	});
 
-	Object.keys(groups).forEach((groupClass) => {
+	// For each group, calculate the maximum height and apply it
+	Object.keys(groups).forEach((groupKey) => {
 		let maxHeight = 0;
-		groups[groupClass].forEach((el) => {
-			el.style.height = "auto";
+		groups[groupKey].forEach((el) => {
+			el.style.height = "auto"; // Reset to natural height
 		});
-		groups[groupClass].forEach((el) => {
+		groups[groupKey].forEach((el) => {
 			maxHeight = Math.max(maxHeight, el.offsetHeight);
 		});
-		groups[groupClass].forEach((el) => {
+		groups[groupKey].forEach((el) => {
 			el.style.height = `${maxHeight}px`;
 		});
-		console.log(`Equalized group ${groupClass} to height ${maxHeight}px`);
+		console.log(`Equalized group ${groupKey} to height ${maxHeight}px`);
 	});
 }
 
 // Create a debounced version for the resize event
 const debouncedEqualizeHeights = debounce(equalizeHeights, 150);
 
-// Run equalizeHeights immediately when the DOM is ready
+// Run equalizeHeights when DOM is ready
 if (
 	document.readyState === "complete" ||
 	document.readyState === "interactive"
@@ -82,7 +91,7 @@ if (
 	document.addEventListener("DOMContentLoaded", equalizeHeights);
 }
 
-// Use the debounced function on window resize
+// Use the debounced version on window resize
 window.addEventListener("resize", debouncedEqualizeHeights);
 
 export default equalizeHeights;
