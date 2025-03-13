@@ -2,6 +2,8 @@
 
 **Equalize Heights** is a Tailwind CSS plugin that automatically equalizes the heights of elements that share a marker—either a class starting with `eh-` or a data attribute (e.g., `data-equalize="groupName"`). It works out of the box—just add the plugin to your Tailwind config, install the package, and import the runtime module in your JavaScript entry file.
 
+With advanced breakpoint control, you can define multiple viewport ranges and specify whether to apply equalization or reset the heights.
+
 ---
 
 ## Installation
@@ -30,31 +32,39 @@
 
 3. **Include the Runtime Module**
 
-    To enable the automatic equalization, you must import the runtime module in your main JavaScript entry file. **If you want to apply equalization only at specific breakpoints**, you can set options on the `window` object **before** importing the runtime. For example:
+    To enable automatic equalization, import the runtime module in your main JavaScript entry file. **If you want to apply equalization only at specific breakpoints,** set options on the `window` object **before** importing the runtime. For example:
 
     ```js
-    // Set the options first – in this example, equalization is applied only for viewports 768px and wider.
-    window.equalizeHeightsOptions = { minWidth: 768 };
+    // Set advanced breakpoint options first.
+    // In this example:
+    // - For viewports 1024px and wider, equalize heights.
+    // - For viewports between 768px and 1023px, reset heights (no equalization).
+    window.equalizeHeightsOptions = {
+    	breakpoints: [
+    		{ min: 1024, action: "equalize" },
+    		{ min: 768, max: 1023, action: "reset" },
+    	],
+    };
 
     // Then import the runtime module
     import "equalize-heights/runtime";
     ```
 
-    If you do not need a breakpoint, simply import the runtime:
+    If you do not need breakpoints, simply import the runtime:
 
     ```js
     import "equalize-heights/runtime";
     ```
 
-    This single import ensures that the runtime code (which automatically equalizes heights on page load and on window resize) is loaded into your project.
+    This ensures the runtime code (which automatically equalizes heights on page load and on window resize) is loaded into your project.
 
 ---
 
 ## Usage
 
-Once installed and configured, mark your HTML elements with either a class starting with `eh-` or a data attribute to define the group. For example:
+Mark your HTML elements with either a class (e.g., `eh-members`) or a data attribute (e.g., `data-equalize="groupName"`) to define the grouping for equalization.
 
-### Using Class-Based Grouping
+### Example using Class-Based Grouping
 
 ```html
 <div class="team grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -85,9 +95,7 @@ Once installed and configured, mark your HTML elements with either a class start
 </div>
 ```
 
-### Using Data Attribute Grouping
-
-You can also use a data attribute for grouping. For example, to equalize the heights of product card content:
+### Example using Data Attribute Grouping
 
 ```html
 <div class="col-span-12 lg:col-span-4 mb-8">
@@ -120,7 +128,7 @@ You can also use a data attribute for grouping. For example, to equalize the hei
 </div>
 ```
 
-In both cases, all elements sharing the same group key (either via a class like `eh-members` or via a data attribute such as `data-equalize="product-card"`) will have their heights equalized automatically when the viewport meets your specified breakpoint (if any) or unconditionally if no breakpoint is set.
+In both cases, all elements in the same group will have their heights equalized automatically when the viewport meets the conditions specified by your breakpoint settings (or unconditionally if no breakpoints are set).
 
 ---
 
@@ -137,22 +145,27 @@ A:
     ```js
     plugins: [require("equalize-heights")];
     ```
-3. **Optionally, set a breakpoint:**  
+3. **Optionally, set advanced breakpoint options:**  
    In your main JS file, before importing the runtime, add:
     ```js
-    window.equalizeHeightsOptions = { minWidth: 768 };
+    window.equalizeHeightsOptions = {
+    	breakpoints: [
+    		{ min: 1024, action: "equalize" },
+    		{ min: 768, max: 1023, action: "reset" },
+    	],
+    };
     ```
 4. Import the runtime module in your main JS file:
     ```js
     import "equalize-heights/runtime";
     ```
-5. Mark your HTML elements with either a class (e.g., `eh-members`) or a data attribute (e.g., `data-equalize="groupName"`).
+5. Mark your HTML elements with classes (e.g., `eh-members`) or data attributes (e.g., `data-equalize="groupName"`).
 
 **Q: How does Equalize Heights work?**  
-A: The runtime module automatically adjusts the heights of all elements within the same group (defined either by a class or a data attribute) by matching them to the tallest element in that group. It runs on DOM load and on window resize (using debouncing to improve performance) and respects any breakpoint settings you configure.
+A: The runtime module automatically adjusts the heights of all elements within the same group (as defined by a class or a data attribute) by matching them to the tallest element in that group. It runs on DOM load and on window resize (using debouncing for smoother performance) and respects any advanced breakpoint settings you configure.
 
 **Q: Can I manually trigger the height equalization?**  
-A: Yes! The runtime module exports the equalization function. If you need to trigger it manually, you can do so like this:
+A: Yes! The runtime module exports the equalization function. To trigger it manually:
 
 ```js
 import equalizeHeights from "equalize-heights/runtime";
@@ -167,20 +180,25 @@ A:
 
 -   Ensure your HTML elements include the correct grouping markers (either classes like `eh-members` or data attributes like `data-equalize="groupName"`).
 -   Verify that the runtime module is imported early in your JS entry file.
--   If using a breakpoint, confirm that `window.equalizeHeightsOptions` is set **before** the runtime is imported.
--   Check the browser console for any JavaScript errors that might be interfering with execution.
+-   If using breakpoints, confirm that `window.equalizeHeightsOptions` is set **before** the runtime is imported.
+-   Check the browser console for any JavaScript errors or log output to diagnose the issue.
 
 ---
 
 ## Summary
 
-Using **Equalize Heights** is as simple as:
+Using **Equalize Heights** with advanced breakpoints is as simple as:
 
 1. **Add the plugin** to your Tailwind configuration.
 2. **Install the package** with npm.
-3. **Optionally, set breakpoint options:**
+3. **Optionally, set advanced breakpoint options:**
     ```js
-    window.equalizeHeightsOptions = { minWidth: 768 };
+    window.equalizeHeightsOptions = {
+    	breakpoints: [
+    		{ min: 1024, action: "equalize" },
+    		{ min: 768, max: 1023, action: "reset" },
+    	],
+    };
     ```
 4. **Import the runtime** module in your main JavaScript file:
     ```js
@@ -188,6 +206,6 @@ Using **Equalize Heights** is as simple as:
     ```
 5. **Mark your HTML elements** with classes like `eh-members` or data attributes like `data-equalize="groupName"`.
 
-That’s it—your elements will automatically be equalized in height when the viewport meets your specified breakpoint (or unconditionally if no breakpoint is set)!
+That’s it—your elements will automatically be equalized in height according to your advanced breakpoint settings!
 
 Enjoy a consistent, professional layout with Equalize Heights!

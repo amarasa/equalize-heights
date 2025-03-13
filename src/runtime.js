@@ -12,27 +12,42 @@ function debounce(func, wait = 150) {
 	};
 }
 
-// Equalization function that supports data attributes for grouping
-function equalizeHeights() {
-	// Re-read user options on every run
+// Function to determine the current action based on advanced breakpoint options.
+// The options object may include a 'breakpoints' array, where each item can be:
+// { min: <number>, max: <number>, action: "equalize" | "reset" }
+// If the current window width falls within a breakpoint's range, the corresponding action is returned.
+function getCurrentAction() {
 	const options = window.equalizeHeightsOptions || {};
-	const minWidthBreakpoint = options.minWidth || 0;
+	if (options.breakpoints && Array.isArray(options.breakpoints)) {
+		for (let bp of options.breakpoints) {
+			const min = bp.min !== undefined ? bp.min : 0;
+			const max = bp.max !== undefined ? bp.max : Infinity;
+			if (window.innerWidth >= min && window.innerWidth <= max) {
+				return bp.action; // "equalize" or "reset"
+			}
+		}
+	} else if (options.minWidth) {
+		return window.innerWidth < options.minWidth ? "reset" : "equalize";
+	}
+	// Default behavior: equalize
+	return "equalize";
+}
 
-	console.log("equalizeHeightsOptions:", options);
+// Main equalization function that supports both data attribute and class-based grouping.
+function equalizeHeights() {
+	const action = getCurrentAction();
 	console.log(
-		"Current window width:",
-		window.innerWidth,
-		"Min width required:",
-		minWidthBreakpoint
+		"Current action:",
+		action,
+		"at window width:",
+		window.innerWidth
 	);
 
-	// If the window width is below the breakpoint, reset heights and exit.
-	if (window.innerWidth < minWidthBreakpoint) {
-		console.log(
-			"Window width below breakpoint. Resetting heights to auto."
-		);
+	// If the action is "reset", clear any inline heights and exit.
+	if (action === "reset") {
+		console.log("Action is reset: setting heights to auto.");
 		const allElements = document.querySelectorAll(
-			'[class*="eh-"], [data-equalize]'
+			'[data-equalize], [class*="eh-"]'
 		);
 		allElements.forEach((el) => {
 			el.style.height = "auto";
@@ -40,14 +55,14 @@ function equalizeHeights() {
 		return;
 	}
 
-	// Select elements by data attribute or class
+	// Otherwise, perform equalization.
 	const elements = document.querySelectorAll(
 		'[data-equalize], [class*="eh-"]'
 	);
 	const groups = {};
 
 	elements.forEach((el) => {
-		// Use the data attribute if present; otherwise, find the first matching class
+		// Prefer grouping by data attribute if available.
 		let groupKey = el.getAttribute("data-equalize");
 		if (!groupKey) {
 			groupKey = Array.from(el.classList).find((cls) =>
@@ -62,11 +77,10 @@ function equalizeHeights() {
 		}
 	});
 
-	// For each group, calculate the maximum height and apply it
 	Object.keys(groups).forEach((groupKey) => {
 		let maxHeight = 0;
 		groups[groupKey].forEach((el) => {
-			el.style.height = "auto"; // Reset to natural height
+			el.style.height = "auto";
 		});
 		groups[groupKey].forEach((el) => {
 			maxHeight = Math.max(maxHeight, el.offsetHeight);
@@ -81,7 +95,7 @@ function equalizeHeights() {
 // Create a debounced version for the resize event
 const debouncedEqualizeHeights = debounce(equalizeHeights, 150);
 
-// Run equalizeHeights when DOM is ready
+// Run equalizeHeights immediately when the DOM is ready
 if (
 	document.readyState === "complete" ||
 	document.readyState === "interactive"
@@ -91,7 +105,7 @@ if (
 	document.addEventListener("DOMContentLoaded", equalizeHeights);
 }
 
-// Use the debounced version on window resize
+// Use the debounced function on window resize
 window.addEventListener("resize", debouncedEqualizeHeights);
 
 export default equalizeHeights;
