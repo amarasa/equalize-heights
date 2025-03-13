@@ -12,9 +12,7 @@ function debounce(func, wait = 150) {
 	};
 }
 
-// Determine what action to take ("equalize" or "reset") based on advanced breakpoints.
-// If window.equalizeHeightsOptions.breakpoints is defined, iterate through it and return the corresponding action.
-// Otherwise, fall back to the legacy minWidth check.
+// Determine the current action ("equalize" or "reset") based on advanced breakpoints.
 function getCurrentAction() {
 	const options = window.equalizeHeightsOptions || {};
 	if (options.breakpoints && Array.isArray(options.breakpoints)) {
@@ -22,7 +20,7 @@ function getCurrentAction() {
 			const min = bp.min !== undefined ? bp.min : 0;
 			const max = bp.max !== undefined ? bp.max : Infinity;
 			if (window.innerWidth >= min && window.innerWidth <= max) {
-				return bp.action; // Expected to be either "equalize" or "reset"
+				return bp.action; // "equalize" or "reset"
 			}
 		}
 	} else if (options.minWidth) {
@@ -31,19 +29,12 @@ function getCurrentAction() {
 	return "equalize";
 }
 
+// Main equalization function supporting data attribute or class-based grouping.
 function equalizeHeights() {
 	const options = window.equalizeHeightsOptions || {};
 	const action = getCurrentAction();
-	console.log(
-		"Current action:",
-		action,
-		"at window width:",
-		window.innerWidth
-	);
 
-	// If the action is "reset", clear heights and (if provided) call the callback with an empty groups object.
 	if (action === "reset") {
-		console.log("Action is reset: setting heights to auto.");
 		const allElements = document.querySelectorAll(
 			'[data-equalize], [class*="eh-"]'
 		);
@@ -56,14 +47,12 @@ function equalizeHeights() {
 		return;
 	}
 
-	// Select elements by data attribute or class.
 	const elements = document.querySelectorAll(
 		'[data-equalize], [class*="eh-"]'
 	);
 	const groups = {};
 
 	elements.forEach((el) => {
-		// Prefer grouping by data attribute if available.
 		let groupKey = el.getAttribute("data-equalize");
 		if (!groupKey) {
 			groupKey = Array.from(el.classList).find((cls) =>
@@ -89,10 +78,8 @@ function equalizeHeights() {
 		groups[groupKey].forEach((el) => {
 			el.style.height = `${maxHeight}px`;
 		});
-		console.log(`Equalized group ${groupKey} to height ${maxHeight}px`);
 	});
 
-	// Execute the callback function if provided.
 	if (typeof options.callback === "function") {
 		options.callback(groups);
 	}

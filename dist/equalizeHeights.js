@@ -7547,10 +7547,7 @@ function debounce(func) {
   };
 }
 
-// Function to determine the current action based on advanced breakpoint options.
-// The options object may include a 'breakpoints' array, where each item can be:
-// { min: <number>, max: <number>, action: "equalize" | "reset" }
-// If the current window width falls within a breakpoint's range, the corresponding action is returned.
+// Determine the current action ("equalize" or "reset") based on advanced breakpoints.
 function getCurrentAction() {
   const options = window.equalizeHeightsOptions || {};
   if (options.breakpoints && Array.isArray(options.breakpoints)) {
@@ -7564,30 +7561,26 @@ function getCurrentAction() {
   } else if (options.minWidth) {
     return window.innerWidth < options.minWidth ? "reset" : "equalize";
   }
-  // Default behavior: equalize
   return "equalize";
 }
 
-// Main equalization function that supports both data attribute and class-based grouping.
+// Main equalization function supporting data attribute or class-based grouping.
 function equalizeHeights() {
+  const options = window.equalizeHeightsOptions || {};
   const action = getCurrentAction();
-  console.log("Current action:", action, "at window width:", window.innerWidth);
-
-  // If the action is "reset", clear any inline heights and exit.
   if (action === "reset") {
-    console.log("Action is reset: setting heights to auto.");
     const allElements = document.querySelectorAll('[data-equalize], [class*="eh-"]');
     allElements.forEach(el => {
       el.style.height = "auto";
     });
+    if (typeof options.callback === "function") {
+      options.callback({});
+    }
     return;
   }
-
-  // Otherwise, perform equalization.
   const elements = document.querySelectorAll('[data-equalize], [class*="eh-"]');
   const groups = {};
   elements.forEach(el => {
-    // Prefer grouping by data attribute if available.
     let groupKey = el.getAttribute("data-equalize");
     if (!groupKey) {
       groupKey = Array.from(el.classList).find(cls => cls.startsWith("eh-"));
@@ -7610,21 +7603,23 @@ function equalizeHeights() {
     groups[groupKey].forEach(el => {
       el.style.height = `${maxHeight}px`;
     });
-    console.log(`Equalized group ${groupKey} to height ${maxHeight}px`);
   });
+  if (typeof options.callback === "function") {
+    options.callback(groups);
+  }
 }
 
-// Create a debounced version for the resize event
+// Create a debounced version for the resize event.
 const debouncedEqualizeHeights = debounce(equalizeHeights, 150);
 
-// Run equalizeHeights immediately when the DOM is ready
+// Run equalizeHeights when the DOM is ready.
 if (document.readyState === "complete" || document.readyState === "interactive") {
   equalizeHeights();
 } else {
   document.addEventListener("DOMContentLoaded", equalizeHeights);
 }
 
-// Use the debounced function on window resize
+// Use the debounced function on window resize.
 window.addEventListener("resize", debouncedEqualizeHeights);
 
 export { equalizeHeights as default };
